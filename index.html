@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Square</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Alpine.js -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+<body class="bg-white flex items-center justify-center h-screen" x-data="Checker()">
+    <div>
+        <!-- ROWS -->
+        <template x-for="row in size">
+            <!-- COLUMNS -->
+            <div class="flex">
+                <template x-for="col in size">
+                    <div class="w-16 h-16 bg-white border-4 border-black"></div>
+                </template>
+            </div>
+        </template>
+    </div>
+
+</body>
+</html>
+
+<script>
+    function Checker(){
+        return {
+            size: 10
+        }
+    }
+</script>
