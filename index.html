@@ -12,13 +12,13 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 <body class="bg-white flex items-center justify-center h-screen" x-data="Checker()">
-    <div>
+    <div class="border-4 border-black">
         <!-- ROWS -->
         <template x-for="row in size">
             <!-- COLUMNS -->
             <div class="flex">
                 <template x-for="col in size">
-                    <div class="w-16 h-16 bg-white border-4 border-black"></div>
+                    <div :class="GetColor(row, col)"></div>
                 </template>
             </div>
         </template>
@@ -30,7 +30,9 @@
 <script>
     function Checker(){
         return {
-            size: 10
+            size: 10,
+
+            GetColor(_row, _col) { return ((_row + _col) % 2 === 0) ? "w-16 h-16 bg-white border-4 border-white" : "w-16 h-16 bg-black border-4 border-black"}
         }
     }
 </script>
