@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Checkers</title>
+  <script src="https://unpkg.com/alpinejs" defer></script>
+  <link rel="stylesheet" href="Style/style.css">
+</head>
+<body>
+<div class="border-4 border-black" x-init="NextTurn()" :key="renderKey">
+    <div x-data="Checker()" x-init="init(); NextTurn()" class="border-4 border-black">
+        <div x-text="GetTurn()" style="text-align: center;"></div>
+
+    <div class="border-4 border-black">
+        <canvas x-ref="canvas"
+                width="500"
+                height="500">
+        </canvas>
+    </div>
+
+</div>
+
+  <!--startDrawing($event)-->
+  <!--draw($event)-->
+  <!--stopDrawing()-->
+</div>
+
+<script>
+function Checker() {
+  return {
+    ctx: null,
+    drawing: false,
+    color: '#000000',
+
+    size: 10,
+    size_con: 50,
+
+    turn: {
+        NONE  : 0,
+        WHITE : 1,
+        BLACK : 2
+    },
+
+    currTurn: 0,
+
+    init() {
+      const canvas = this.$refs.canvas;
+    this.ctx = canvas.getContext('2d');
+
+    this.DrawGrid();
+    },
+
+    DrawGrid() {
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+
+                this.ctx.fillStyle =
+                    (row + col) % 2 === 0 ? '#f0d9b5' : '#b58863';
+
+                this.ctx.fillRect(
+                    col * this.size_con,
+                    row * this.size_con,
+                    this.size_con,
+                    this.size_con
+                );
+            }
+        }
+    },
+
+    DrawPiece(_x, _y, _color) {
+        this.ctx.beginPath();
+        this.ctx.arc(_x, _y, 20, 0, Math.PI * 2); // circle
+        this.ctx.fillStyle = _color;
+        this.ctx.fill();
+        this.ctx.closePath();
+    },
+
+    stopDrawing() {
+      this.drawing = false;
+    },
+
+    clear() {
+      const canvas = this.$refs.canvas;
+      this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    },
+
+    GetTurn() { return (this.currTurn == this.turn.BLACK) ? "Black's Turn" : (this.currTurn == this.turn.WHITE) ? "White's Turn" : "None's Turn"; },
+
+    NextTurn() { 
+        this.currTurn = (this.currTurn == this.turn.BLACK) ? this.turn.WHITE : (this.currTurn == this.turn.WHITE) ? this.turn.BLACK : this.turn.WHITE; 
+            
+        if(this.currTurn == this.turn.WHITE) { this.NPCTurn(); }
+    },
+  }
+}
+</script>
+
+</body>
+</html>
