@@ -172,10 +172,10 @@ function Checker(){
         InField(_x, _y) {  if (_y > this.size || _y < 1 || _x > this.size || _x < 0) { return false; } return true; },
 
         InBound(_x, _y, _player) { 
-            console.log(this.curr);
+            console.log(this.currTurn);
 
-            if(this.curr == this.turn.BLACK) { console.log("b"); if (_player.y - 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } } 
-            else if(this.curr == this.turn.WHITE) { console.log("w"); if (_player.y + 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } }
+            if(this.currTurn == this.turn.BLACK) { console.log("b"); if (_player.y - 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } } 
+            else if(this.currTurn == this.turn.WHITE) { console.log("w"); if (_player.y + 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } }
 
             console.log("false");
 
