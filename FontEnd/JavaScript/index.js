@@ -30,30 +30,45 @@ function Checker(){
         seletedCount: 0,
 
         GetSeleted(_row, _col) {
-            if(this.currTurn == 2) {
-                for(let i =0; i < this.playerBlack.length; i++) { if(this.IsAt(_col, _row, this.playerBlack[i])){ this.seleted.x = _col; this.seleted.y = _row; this.seleted.i = i; } }
-
-                if (this.InField(this.seleted.x, this.seleted.y) && this.seletedCount > 0) {
-                    if (this.IsStanding(_col, _row)) {  
-                        const captured = this.TryCapture(_col, _row, this.playerBlack[this.seleted.i], this.playerWhite);
-
-                        if ((!captured && this.InBound(_col, _row, this.playerBlack[this.seleted.i]))) {
-                            this.playerBlack[this.seleted.i].x = _col;
-                            this.playerBlack[this.seleted.i].y = _row;
-
-                            if(this.playerBlack[this.seleted.i].y == 1){ this.playerBlack[this.seleted.i].king = true; }
-                        }
-
-                        this.seletedCount = 0;
-                        this.seleted = { x: -1, y: -1, i: -1 };
-
-                        this.NextTurn();
-                    }
-                } else { this.seletedCount++; }
-                    
-                this.renderKey++;
+            switch(this.currTurn){ 
+                case 0: this.NextTurn(); break;
+                case 1: this.SeletedPiece(_row, _col, this.playerWhite); break;
+                case 2: this.SeletedPiece(_row, _col, this.playerBlack); break;
             }
         },
+
+        SeletedPiece(_row, _col, _pieces){    
+            this.WhatIsSeleted(_row, _col, _pieces)
+
+            if (this.InField(this.seleted.x, this.seleted.y) && this.seletedCount > 0) {
+                console.log("d");
+                if (this.IsStanding(_col, _row)) {  
+                    const captured = this.TryCapture(_col, _row, _pieces[this.seleted.i], this.GetEnemy(_pieces));
+
+                    this.SetSeletedPiece(_row, _col, _pieces, captured);
+
+                    this.NextTurn();
+                }
+            } else { this.seletedCount++; }
+                    
+            this.renderKey++;
+        },
+
+        GetEnemy(_pieces){ return (_pieces == this.playerWhite) ? this.playerBlack : this.playerWhite; },
+
+        SetSeletedPiece(_row, _col, _pieces, _captured){
+            if ((!_captured && this.InBound(_col, _row, _pieces[this.seleted.i]))) {
+                    _pieces[this.seleted.i].x = _col;
+                    _pieces[this.seleted.i].y = _row;
+
+                if(_pieces[this.seleted.i].y == 1){ _pieces[this.seleted.i].king = true; }
+            }
+
+            this.seletedCount = 0;
+            this.seleted = { x: -1, y: -1, i: -1 };
+        },
+
+        WhatIsSeleted(_row, _col, _pieces){ for(let i =0; i < _pieces.length; i++) { if(this.IsAt(_col, _row, _pieces[i])){ this.seleted.x = _col; this.seleted.y = _row; this.seleted.i = i; } } },
 
         GetColor(_row, _col) { return (_row == this.seleted.y && _col == this.seleted.x) ? "w-16 h-16 bg-blue border-4 border-blue" : ((_row + _col) % 2 === 0) ? "w-16 h-16 bg-white border-4 border-white" : "w-16 h-16 bg-black border-4 border-black"},
 
@@ -66,11 +81,7 @@ function Checker(){
 
         GetTurn() { return (this.currTurn == this.turn.BLACK) ? "Black's Turn" : (this.currTurn == this.turn.WHITE) ? "White's Turn" : "None's Turn"; },
 
-        NextTurn() { 
-            this.currTurn = (this.currTurn == this.turn.BLACK) ? this.turn.WHITE : (this.currTurn == this.turn.WHITE) ? this.turn.BLACK : this.turn.WHITE; 
-            
-            if(this.currTurn == this.turn.WHITE) { this.NPCTurn(); }
-        },
+        NextTurn() {  this.currTurn = (this.currTurn == this.turn.BLACK) ? this.turn.WHITE : (this.currTurn == this.turn.WHITE) ? this.turn.BLACK : this.turn.WHITE;  },
 
         // for enemy is alweays white
         // for now only easy mode AI he dont care what you do but just random chose one fgor testing prosuses
@@ -161,7 +172,10 @@ function Checker(){
         InField(_x, _y) {  if (_y > this.size || _y < 1 || _x > this.size || _x < 0) { return false; } return true; },
 
         InBound(_x, _y, _player) { 
-            if (_player.y - 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; }  } 
+            console.log(this.curr);
+
+            if(this.curr == this.turn.BLACK) { console.log("b"); if (_player.y - 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } } 
+            else if(this.curr == this.turn.WHITE) { console.log("w"); if (_player.y + 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } }
 
             console.log("false");
 
@@ -172,17 +186,12 @@ function Checker(){
             const midX = (_piece.x + _col) / 2;
             const midY = (_piece.y + _row) / 2;
 
-            if (Math.abs(_col - _piece.x) !== 2 || Math.abs(_row - _piece.y) !== 2)
-                return -1;
+            if (Math.abs(_col - _piece.x) !== 2 || Math.abs(_row - _piece.y) !== 2) { return -1; }
 
             if (!this.InField(_col, _row)) return -1;
             if (!this.IsStanding(_col, _row)) return -1;
 
-            for (let i = 0; i < _enemyPieces.length; i++) {
-                if (_enemyPieces[i].x === midX && _enemyPieces[i].y === midY) {
-                    return i;
-                }
-            }
+            for (let i = 0; i < _enemyPieces.length; i++) { if (_enemyPieces[i].x === midX && _enemyPieces[i].y === midY) { return i; } }
 
             return -1;
         },
