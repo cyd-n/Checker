@@ -29,6 +29,14 @@ function Checker(){
 
         seletedCount: 0,
 
+        winstate: {
+            NONE  : 0,
+            WHITE : 1,
+            BLACK : 2
+        },
+
+        currWinState: 0,
+
         GetSeleted(_row, _col) {
             switch(this.currTurn){ 
                 case 0: this.NextTurn(); break;
@@ -43,11 +51,17 @@ function Checker(){
             if (this.InField(this.seleted.x, this.seleted.y) && this.seletedCount > 0) {
                 console.log("d");
                 if (this.IsStanding(_col, _row)) {  
-                    const captured = this.TryCapture(_col, _row, _pieces[this.seleted.i], this.GetEnemy(_pieces));
+                    const enemy = this.GetEnemy(_pieces);
+                    const mustCapture = this.PlayerHasCapture(_pieces, enemy);
 
-                    this.SetSeletedPiece(_row, _col, _pieces, captured);
+                    if(mustCapture){
+                        const captured = this.TryCapture( _col, _row, _pieces[this.seleted.i], enemy );
 
-                    this.NextTurn();
+                        if(captured){ this.ResetSelected(); this.NextTurn(); }
+                    }else{
+                        this.SetSeletedPiece(_row,_col,_pieces);
+                        this.NextTurn();
+                    }
                 }
             } else { this.seletedCount++; }
                     
@@ -56,10 +70,10 @@ function Checker(){
 
         GetEnemy(_pieces){ return (_pieces == this.playerWhite) ? this.playerBlack : this.playerWhite; },
 
-        SetSeletedPiece(_row, _col, _pieces, _captured){
-            if ((!_captured && this.InBound(_col, _row, _pieces[this.seleted.i]))) {
-                    _pieces[this.seleted.i].x = _col;
-                    _pieces[this.seleted.i].y = _row;
+        SetSeletedPiece(_row, _col, _pieces){
+            if (this.InBound(_col, _row, _pieces[this.seleted.i])) {
+                _pieces[this.seleted.i].x = _col;
+                _pieces[this.seleted.i].y = _row;
 
                 if(_pieces[this.seleted.i].y == 1){ _pieces[this.seleted.i].king = true; }
             }
@@ -67,6 +81,29 @@ function Checker(){
             this.seletedCount = 0;
             this.seleted = { x: -1, y: -1, i: -1 };
         },
+
+        PlayerHasCapture(_pieces,_enemyPieces){
+            for(let i=0; i < _pieces.length; i++){
+                let piece = _pieces[i];
+
+                const dirs = [ [2,2],[-2,2],[2,-2],[-2,-2] ];
+
+                for(let d=0; d<dirs.length; d++){
+                    let x = piece.x + dirs[d][0];
+                    let y = piece.y + dirs[d][1];
+
+                    if(this.CanCapture(x, y, piece, _enemyPieces) >= 0){ return true; }
+                }
+            }
+
+            return false;
+        },
+
+        ResetSelected(){
+            this.seletedCount = 0;
+            this.seleted = {x:-1,y:-1,i:-1};
+        },
+
 
         WhatIsSeleted(_row, _col, _pieces){ for(let i =0; i < _pieces.length; i++) { if(this.IsAt(_col, _row, _pieces[i])){ this.seleted.x = _col; this.seleted.y = _row; this.seleted.i = i; } } },
 
