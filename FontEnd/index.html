@@ -1,28 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Checkers</title>
-
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-
-    <!-- Alpine.js -->
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkers</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
+
 <body class="bg-white flex items-center justify-center h-screen" x-data="Checker()">
-    <div class="border-4 border-black" x-init="NextTurn()" :key="renderKey">
-       <div x-text="GetTurn" style="text-align: center;"></div>
-        <div class="border-4 bord er-black">
+    <!-- BOARD -->
+    <div class="border-4 border-black relative" x-init="NextTurn()" :key="renderKey">
+        <div x-text="GetTurn()" class="text-center font-bold p-2"></div>
+        <div class="border-4 border-black">
             <!-- ROWS -->
             <template x-for="row in size">
                 <!-- COLUMNS -->
                 <div class="flex">
                     <template x-for="col in size">
-                        <div :class="GetColor(row, col)"  @click="GetSeleted(row, col)">   
-                            <!-- Issue -->
+                        <div :class="GetColor(row,col)" @click="GetSeleted(row,col)">
                             <img :src="GetPlayer(row,col,false)" alt="">
                             <img :src="GetPlayer(row,col,true)" alt="">
                         </div>
@@ -31,7 +27,21 @@
             </template>
         </div>
     </div>
+
+    <!-- POPUP -->
+    <div x-show="showPopup" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
+
+            <h2 class="text-2xl font-bold mb-4" x-text="popupTitle"></h2>
+
+            <button @click="ReStart()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                ReStart
+            </button>
+
+        </div>
+    </div>
+
 </body>
 </html>
 
-<script src = "JavaScript/index.js"></script>
+<script src="JavaScript/index.js"></script>
