@@ -2582,11 +2582,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/BackEnd/BackEnd/BackEnd.csproj",
+      "projectUniqueName": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/Checker/BackEnd/BackEnd/BackEnd.csproj",
       "projectName": "BackEnd",
-      "projectPath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/BackEnd/BackEnd/BackEnd.csproj",
+      "projectPath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/Checker/BackEnd/BackEnd/BackEnd.csproj",
       "packagesPath": "/home/Quidon/.nuget/packages/",
-      "outputPath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/BackEnd/BackEnd/obj/",
+      "outputPath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/Checker/BackEnd/BackEnd/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/Quidon/.nuget/NuGet/NuGet.Config"

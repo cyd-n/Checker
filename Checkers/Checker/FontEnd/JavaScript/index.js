@@ -5,16 +5,12 @@ function Checker(){
         // Looks awfull
         playerBlack: [
             {x : 2, y : 1, king: false},{x : 4, y : 1, king: false},{x : 6, y : 1, king: false},{x : 8, y : 1, king: false},{x : 10, y : 1, king: false},
-            {x : 1, y : 2, king: false},{x : 3, y : 2, king: false},{x : 5, y : 2, king: false},{x : 7, y : 2, king: false},{x : 9, y : 2, king: false},
-            {x : 2, y : 3, king: false},{x : 4, y : 3, king: false},{x : 6, y : 3, king: false},{x : 8, y : 3, king: false},{x : 10, y : 3, king: false},
-            {x : 1, y : 4, king: false},{x : 3, y : 4, king: false},{x : 5, y : 4, king: false},{x : 7, y : 4, king: false},{x : 9, y : 4, king: false}
+            {x : 1, y : 2, king: false},{x : 3, y : 2, king: false},{x : 5, y : 2, king: false},{x : 7, y : 2, king: false},{x : 9, y : 2, king: false}
+            
         ],
 
         playerWhite: [
-            {x : 1, y : 10, king: false},{x : 3, y : 10, king: false},{x : 5, y : 10, king: false},{x : 7, y : 10, king: false},{x : 9, y : 10, king: false},
-            {x : 2, y : 9, king: false},{x : 4, y : 9, king: false},{x : 6, y : 9, king: false},{x : 8, y : 9, king: false},{x : 10, y : 9, king: false},
-            {x : 1, y : 8, king: false},{x : 3, y : 8, king: false},{x : 5, y : 8, king: false},{x : 7, y : 8, king: false},{x : 9, y : 8, king: false},
-            {x : 2, y : 7, king: false},{x : 4, y : 7, king: false},{x : 6, y : 7, king: false},{x : 8, y : 7, king: false},{x : 10, y : 7, king: false}
+            {x : 1, y : 10, king: true}
         ],
 
         playerBackUp: [[
@@ -62,21 +58,27 @@ function Checker(){
             }
         },
 
-        SeletedPiece(_row, _col, _pieces){    
-            this.WhatIsSeleted(_row, _col, _pieces)
+        SeletedPiece(_row, _col, _pieces) {    
+            this.WhatIsSeleted(_row, _col, _pieces);
+
+            console.log("seletedCount:", this.seletedCount, "seleted:", JSON.stringify(this.seleted), "piece:", JSON.stringify(_pieces[this.seleted.i]));
 
             if (this.InField(this.seleted.x, this.seleted.y) && this.seletedCount > 0) {
-                console.log("d");
                 if (this.IsStanding(_col, _row)) {  
                     const enemy = this.GetEnemy(_pieces);
                     const mustCapture = this.PlayerHasCapture(_pieces, enemy);
+                    console.log("mustCapture:", mustCapture);
 
-                    if(mustCapture){
-                        const captured = this.TryCapture( _col, _row, _pieces[this.seleted.i], enemy );
-
-                        if(captured){ this.ResetSelected(); this.NextTurn(); }
-                    }else{
-                        this.SetSeletedPiece(_row,_col,_pieces);
+                    if(mustCapture) {
+                        const captured = this.TryCapture(_col, _row, _pieces[this.seleted.i], enemy);
+                        if(captured) { 
+                            this.ResetSelected(); 
+                            this.NextTurn(); 
+                        }
+                        // if capture failed — wrong destination clicked, do nothing
+                    } else {
+                        // No capture required — normal move through InBound
+                        this.SetSeletedPiece(_row, _col, _pieces);
                         this.NextTurn();
                     }
                 }
@@ -101,20 +103,62 @@ function Checker(){
             this.seleted = { x: -1, y: -1, i: -1 };
         },
 
-        PlayerHasCapture(_pieces,_enemyPieces){
-            for(let i=0; i < _pieces.length; i++){
+        PlayerHasCapture(_pieces, _enemyPieces) {
+            for(let i = 0; i < _pieces.length; i++) {
                 let piece = _pieces[i];
+                console.log("checking piece:", piece.x, piece.y, "king:", piece.king);
 
-                const dirs = [ [2,2],[-2,2],[2,-2],[-2,-2] ];
+                if(!piece.king) {
+                    const dirs = [[2,2],[-2,2],[2,-2],[-2,-2]];
+                    for(let d = 0; d < dirs.length; d++) {
+                        let x = piece.x + dirs[d][0];
+                        let y = piece.y + dirs[d][1];
+                        if(this.CanCapture(x, y, piece, _enemyPieces) >= 0) return true;
+                    }
+                } else {
+                    const dirs = [[1,1],[-1,1],[1,-1],[-1,-1]];
+                    for(let d = 0; d < dirs.length; d++) {
+                        let x = piece.x + dirs[d][0];
+                        let y = piece.y + dirs[d][1];
+                        let enemyFound = false;
+                        let enemyIdx = -1;
 
-                for(let d=0; d<dirs.length; d++){
-                    let x = piece.x + dirs[d][0];
-                    let y = piece.y + dirs[d][1];
+                        while(this.InField(x, y)) {
+                            // Check if enemy is here
+                            let isEnemy = false;
+                            for(let e = 0; e < _enemyPieces.length; e++) {
+                                if(_enemyPieces[e].x === x && _enemyPieces[e].y === y) {
+                                    isEnemy = true;
+                                    enemyIdx = e;
+                                    break;
+                                }
+                            }
 
-                    if(this.CanCapture(x, y, piece, _enemyPieces) >= 0){ if(this.InField(x, y)) { console.log(x + "," + y); return true; } else {console.log("Outside:" + x + "," + y); } }
+                            // Check if friendly is here
+                            let isFriendly = false;
+                            for(let p of _pieces) {
+                                if(p !== piece && p.x === x && p.y === y) {
+                                    isFriendly = true;
+                                    break;
+                                }
+                            }
+
+                            if(isFriendly) break; // friendly always blocks
+
+                            if(isEnemy) {
+                                if(enemyFound) break; // second enemy — blocked
+                                enemyFound = true;
+                            } else if(enemyFound) {
+                                // Empty square past an enemy — valid capture landing
+                                return true;
+                            }
+
+                            x += dirs[d][0];
+                            y += dirs[d][1];
+                        }
+                    }
                 }
             }
-
             return false;
         },
 
@@ -271,22 +315,32 @@ function Checker(){
 
         InBound(_x, _y, _player) { 
             if(_player.king) {
-                // King can move any distance diagonally
-                if (!this.InField(_x, _y)) return false;
-                if (!this.IsStanding(_x, _y)) return false;
+                if(!this.InField(_x, _y)) return false;
+                if(!this.IsStanding(_x, _y)) return false;
 
                 const dx = Math.sign(_x - _player.x);
                 const dy = Math.sign(_y - _player.y);
 
-                if (dx === 0 || dy === 0) return false;
-                if (Math.abs(_x - _player.x) !== Math.abs(_y - _player.y)) return false;
+                if(dx === 0 || dy === 0) return false;
+                if(Math.abs(_x - _player.x) !== Math.abs(_y - _player.y)) return false;
 
-                // Check no pieces blocking the path
+                const friendly = this.playerWhite.some(p => p === _player)
+                    ? this.playerWhite : this.playerBlack;
+
+                let enemiesInPath = 0;
                 let x = _player.x + dx;
                 let y = _player.y + dy;
 
-                while (x !== _x || y !== _y) {
-                    if (!this.IsStanding(x, y)) return false;
+                while(x !== _x || y !== _y) {
+                    // Friendly piece always blocks
+                    for(let p of friendly) {
+                        if(p.x === x && p.y === y) return false;
+                    }
+                    // Count enemies
+                    if(!this.IsStanding(x, y)) enemiesInPath++;
+                    // More than one enemy — blocked
+                    if(enemiesInPath > 1) return false;
+
                     x += dx;
                     y += dy;
                 }
@@ -294,41 +348,83 @@ function Checker(){
                 return true;
             }
 
-            console.log(this.currTurn);
-
-            if(this.currTurn == this.turn.WHITE) { console.log("b"); if (_player.y - 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } } 
-            else if(this.currTurn == this.turn.BLACK) { console.log("w"); if (_player.y + 1 == _y) {  if(_player.x - 1 == _x || _player.x + 1 == _x) { return true; } } }
-
-            console.log("false");
-
-            return false;
-        },
-
-        CanCapture(_col, _row, _piece, _enemyPieces) {
-            const midX = (_piece.x + _col) / 2;
-            const midY = (_piece.y + _row) / 2;
-
-            if (Math.abs(_col - _piece.x) !== 2 || Math.abs(_row - _piece.y) !== 2) { return -1; }
-
-            if (!this.InField(_col, _row)) return -1;
-            if (!this.IsStanding(_col, _row)) return -1;
-
-            for (let i = 0; i < _enemyPieces.length; i++) { if (_enemyPieces[i].x === midX && _enemyPieces[i].y === midY) { return i; } }
-
-            return -1;
-        },
-
-        TryCapture(_col, _row, _piece, _enemyPieces) {
-            i = this.CanCapture(_col, _row, _piece, _enemyPieces);
-
-            if(i >= 0) {
-                _enemyPieces.splice(i, 1);
-                _piece.x = _col;
-                _piece.y = _row;
-                return true;
+            if(this.currTurn == this.turn.WHITE) { 
+                if (_player.y - 1 == _y && (_player.x - 1 == _x || _player.x + 1 == _x)) return true; 
+            } 
+            else if(this.currTurn == this.turn.BLACK) { 
+                if (_player.y + 1 == _y && (_player.x - 1 == _x || _player.x + 1 == _x)) return true; 
             }
 
             return false;
+        },
+
+       CanCapture(_col, _row, _piece, _enemyPieces) {
+            if(!_piece.king) {
+                const midX = (_piece.x + _col) / 2;
+                const midY = (_piece.y + _row) / 2;
+
+                if (Math.abs(_col - _piece.x) !== 2 || Math.abs(_row - _piece.y) !== 2) return -1;
+                if (!this.InField(_col, _row)) return -1;
+                if (!this.IsStanding(_col, _row)) return -1;
+
+                for (let i = 0; i < _enemyPieces.length; i++) { 
+                    if (_enemyPieces[i].x === midX && _enemyPieces[i].y === midY) return i; 
+                }
+
+                return -1;
+            }
+
+            // King
+            const dx = Math.sign(_col - _piece.x);
+            const dy = Math.sign(_row - _piece.y);
+
+            if (dx === 0 || dy === 0) return -1;
+            if (Math.abs(_col - _piece.x) !== Math.abs(_row - _piece.y)) return -1;
+            if (!this.InField(_col, _row)) return -1;
+            if (!this.IsStanding(_col, _row)) return -1;
+
+            const isWhite = this.playerWhite.some(p => p === _piece);
+            const friendly = isWhite ? this.playerWhite : this.playerBlack;
+
+            let enemyIndex = -1;
+            let x = _piece.x + dx;
+            let y = _piece.y + dy;
+
+            while (x !== _col || y !== _row) {
+                // Friendly blocks completely
+                for (let p of friendly) {
+                    if (p.x === x && p.y === y) return -1;
+                }
+
+                // Enemy found
+                for (let i = 0; i < _enemyPieces.length; i++) {
+                    if (_enemyPieces[i].x === x && _enemyPieces[i].y === y) {
+                        if (enemyIndex >= 0) return -1; // second enemy — blocked
+                        enemyIndex = i;
+                    }
+                }
+
+                x += dx;
+                y += dy;
+            }
+
+            // Must have found exactly one enemy
+            if (enemyIndex === -1) return -1;
+
+            return enemyIndex;
+        },
+
+        TryCapture(_col, _row, _piece, _enemyPieces) {
+            const index = this.CanCapture(_col, _row, _piece, _enemyPieces);
+            console.log("TryCapture index:", index, "dest:", _col, _row, "piece:", _piece.x, _piece.y);
+            
+            if (index === -1) return false;
+            console.log("Removing enemy:", _enemyPieces[index]);
+            
+            _enemyPieces.splice(index, 1);
+            _piece.x = _col;
+            _piece.y = _row;
+            return true;
         },
 
     }

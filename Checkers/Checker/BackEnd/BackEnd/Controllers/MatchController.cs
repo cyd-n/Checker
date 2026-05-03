@@ -20,15 +20,15 @@ namespace BackEnd.Controllers
 
         // GET api/match/{gameId}
         [HttpGet("{_gameId}")]
-        public async Task<IActionResult> Get(string _gameId)
+        public async Task<IActionResult> Get(int _gameId)
         {
             var match = await _context.matches
-                .FirstOrDefaultAsync(m => m.Seed == _gameId);
+                .FirstOrDefaultAsync(m => m.Id == _gameId);
 
             if (match == null)
                 return NotFound(new { message = "Game not found" });
 
-            return Ok(match.Seed);
+            return Ok(new { match.Seed, match.Password});
         }
 
         // POST api/<MatchController>
@@ -45,7 +45,7 @@ namespace BackEnd.Controllers
             _context.matches.Add(match);
             await _context.SaveChangesAsync();
 
-            return Ok(new { gameId });
+            return Ok(new { id = match.Id, gameId, _pass});
         }
     }
 }

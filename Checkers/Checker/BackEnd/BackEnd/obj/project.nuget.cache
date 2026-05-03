@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "cWIp16reyNE=",
+  "dgSpecHash": "ORKNQ2J2Xc4=",
   "success": true,
-  "projectFilePath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/BackEnd/BackEnd/BackEnd.csproj",
+  "projectFilePath": "/home/Quidon/Linux_Programing/Web_Dev/FontEnd_Dev/JavaScript/AplineJs/Checker/Checkers/Checker/BackEnd/BackEnd/BackEnd.csproj",
   "expectedPackageFiles": [
     "/home/Quidon/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/Quidon/.nuget/packages/microsoft.aspnetcore.openapi/10.0.7/microsoft.aspnetcore.openapi.10.0.7.nupkg.sha512",
