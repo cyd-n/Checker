@@ -18,7 +18,7 @@ namespace BackEnd.Controllers
         public MatchController(MatchContext _ctx) { _context = _ctx; }
 
         // GET api/match/{gameId}
-        [HttpGet("{_gameId}")]
+        [HttpGet("{_gameId}/{_pass}")]
         public async Task<IActionResult> Get(int _gameId, string _pass) {
             var match = await _context.matches.FirstOrDefaultAsync(m => m.Id == _gameId);
 
@@ -26,7 +26,10 @@ namespace BackEnd.Controllers
 
             if (_pass != match.Password || _pass == null) { return NotFound(new { message = "PassWord is Invalid" }); }
 
-            return Ok(new { match.Seed});
+            return Ok(new
+            {
+                seed = match.Seed // string only
+            });
         }
 
         // POST api/<MatchController>

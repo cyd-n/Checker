@@ -438,18 +438,18 @@ function Checker(){
         },
 
         async SaveGame(){
-            const DATA = JSON.stringify({
+            const DATA = {
                 white: this.playerWhite,
                 black: this.playerBlack,
                 turn: this.currTurn
-            });
+            };
             fetch("http://localhost:5157/api/match/save", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    seed: DATA,
+                    seed: JSON.stringify(DATA),
                     password: this.savePass
                 })
             })
@@ -460,7 +460,36 @@ function Checker(){
                 this.renderKey++;
             });
 
+            this.savePass = "";
             this.popupMode = "showId";
+        },
+
+        async LoadGame(){
+            if (this.gameId == null || this.savePass == null) {
+                alert("Enter ID and password");
+                return; 
+            }
+
+            const response = await fetch(`http://localhost:5157/api/match/${this.gameId}/${this.savePass}`);
+
+            if(!response.ok) { alert("Game not found"); return; }
+
+            const data = await response.json();
+
+            const seed = JSON.parse(data.seed); 
+
+    this.playerWhite = seed.white;
+    this.playerBlack = seed.black;
+    this.currTurn = seed.turn;
+
+    this.showSaveLoad = false;
+    this.popupMode = "";
+    this.showPopup = false;
+
+    this.savePass = "";
+    this.gameId = "";
+
+    this.renderKey++;
         }
     }
 }
