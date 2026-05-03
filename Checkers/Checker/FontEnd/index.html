@@ -26,20 +26,64 @@
                 </div>
             </template>
         </div>
+        <div class="flex gap-2 justify-center">
+            <button @click="popupMode = 'save'; showPopup = true;" class="bg-black text-white px-4 py-2">Save</button>
+            <button @click="" class="bg-black text-white px-4 py-2">Load</button>
+            <button @click="ReStart()" class="bg-black text-white px-4 py-2">Restart</button>
+        </div>
     </div>
 
     <!-- POPUP -->
     <div x-show="showPopup" x-transition class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
         <div class="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
+            <!--Win or Lose-->
+            <template x-if="popupMode === 'win'">
+                <h2 class="text-2xl font-bold mb-4" x-text="popupTitle"></h2>
 
-            <h2 class="text-2xl font-bold mb-4" x-text="popupTitle"></h2>
+                <button @click="ReStart()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"> ReStart </button>
+            </template>
 
-            <button @click="ReStart()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                ReStart
-            </button>
+            <!-- SAVE -->
+            <template x-if="popupMode === 'save'">
+                <div class="flex flex-col gap-2">
+                    <input x-model="savePass" placeholder="Enter Password" class="border p-2 rounded">
+                    <button @click="SaveGame()" class="bg-black text-white px-4 py-2 rounded">Confirm Save</button>
+                    <button @click="popupMode=''; showPopup = false;" class="bg-black text-white px-4 py-2 rounded">Back</button>
+                </div>
+            </template>
 
+            <template x-if="popupMode === 'showId'">
+                <div class="flex flex-col gap-2">
+                    <h1>ID: <span x-text="gameId"></span></h1> 
+                    <button @click="popupMode=''; showPopup = false;" class="bg-black text-white px-4 py-2 rounded">Back</button>
+                </div>
+            </template>
+
+            <!-- LOAD -->
+            <template x-if="popupMode === 'load'">
+                <div class="flex flex-col gap-2">
+                    <input x-model="gameId" placeholder="Enter Id" class="border p-2 rounded">
+                    <input x-model="savePass" placeholder="Enter Password" class="border p-2 rounded">
+                    <button @click="LoadGame()" class="bg-black text-white px-4 py-2 rounded">Load</button>
+                    <button @click="popupMode=''; showPopup = false" class="bg-black text-white px-4 py-2 rounded">Back</button>
+                </div>
+            </template>
         </div>
     </div>
+
+
+
+        <!-- LOAD 
+        <template x-if="popupMode === 'load'">
+            <div class="flex flex-col gap-2">
+                <input x-model="loadName" placeholder="Enter save name" class="border p-2 rounded">
+                <button @click="LoadGame()" class="bg-yellow-500 text-white px-4 py-2 rounded">Load</button>
+                <button @click="popupMode='menu'" class="bg-gray-400 text-white px-4 py-2 rounded">Back</button>
+            </div>
+        </template>-->
+
+    </div>
+</div>
 
 </body>
 </html>

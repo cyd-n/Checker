@@ -2,15 +2,22 @@ function Checker(){
     return {
         renderKey: 0,
         size: 10,
+
+        popupMode: "",
+
         // Looks awfull
         playerBlack: [
             {x : 2, y : 1, king: false},{x : 4, y : 1, king: false},{x : 6, y : 1, king: false},{x : 8, y : 1, king: false},{x : 10, y : 1, king: false},
-            {x : 1, y : 2, king: false},{x : 3, y : 2, king: false},{x : 5, y : 2, king: false},{x : 7, y : 2, king: false},{x : 9, y : 2, king: false}
-            
+            {x : 1, y : 2, king: false},{x : 3, y : 2, king: false},{x : 5, y : 2, king: false},{x : 7, y : 2, king: false},{x : 9, y : 2, king: false},
+            {x : 2, y : 3, king: false},{x : 4, y : 3, king: false},{x : 6, y : 3, king: false},{x : 8, y : 3, king: false},{x : 10, y : 3, king: false},
+            {x : 1, y : 4, king: false},{x : 3, y : 4, king: false},{x : 5, y : 4, king: false},{x : 7, y : 4, king: false},{x : 9, y : 4, king: false}
         ],
 
         playerWhite: [
-            {x : 1, y : 10, king: true}
+            {x : 1, y : 10, king: false},{x : 3, y : 10, king: false},{x : 5, y : 10, king: false},{x : 7, y : 10, king: false},{x : 9, y : 10, king: false},
+            {x : 2, y : 9, king: false},{x : 4, y : 9, king: false},{x : 6, y : 9, king: false},{x : 8, y : 9, king: false},{x : 10, y : 9, king: false},
+            {x : 1, y : 8, king: false},{x : 3, y : 8, king: false},{x : 5, y : 8, king: false},{x : 7, y : 8, king: false},{x : 9, y : 8, king: false},
+            {x : 2, y : 7, king: false},{x : 4, y : 7, king: false},{x : 6, y : 7, king: false},{x : 8, y : 7, king: false},{x : 10, y : 7, king: false}
         ],
 
         playerBackUp: [[
@@ -45,6 +52,9 @@ function Checker(){
             WHITE : 1,
             BLACK : 2
         },
+
+        gameId : 0,
+        savePass: "",
 
         currWinState: 0,
 
@@ -179,10 +189,10 @@ function Checker(){
         },
 
         WinStateFunc(){
-            if(this.playerWhite.length < 1) { this.currWinState = this.winState.BLACK; this.popupTitle = "Player Black Won"; this.showPopup = true;}
-            else if(this.playerBlack.length < 1) { this.currWinState = this.winState.WHITE; this.popupTitle = "Player White Won"; this.showPopup = true;}
-            else if(!this.CanMove(this.playerWhite)) {this.currWinState = this.winState.BLACK; this.popupTitle = "Player Black Won"; this.showPopup = true;}
-            else if(!this.CanMove(this.playerBlack)) {this.currWinState = this.winState.WHITE; this.popupTitle = "Player White Won"; this.showPopup = true;}
+            if(this.playerWhite.length < 1) { this.currWinState = this.winState.BLACK; this.popupTitle = "Player Black Won"; this.showPopup = true; this.popupMode = "win";}
+            else if(this.playerBlack.length < 1) { this.currWinState = this.winState.WHITE; this.popupTitle = "Player White Won"; this.showPopup = true; this.popupMode = "win";}
+            else if(!this.CanMove(this.playerWhite)) {this.currWinState = this.winState.BLACK; this.popupTitle = "Player Black Won"; this.showPopup = true; this.popupMode = "win";}
+            else if(!this.CanMove(this.playerBlack)) {this.currWinState = this.winState.WHITE; this.popupTitle = "Player White Won"; this.showPopup = true; this.popupMode = "win";}
         },
 
         ReStart(){
@@ -427,5 +437,30 @@ function Checker(){
             return true;
         },
 
+        async SaveGame(){
+            const DATA = JSON.stringify({
+                white: this.playerWhite,
+                black: this.playerBlack,
+                turn: this.currTurn
+            });
+            fetch("http://localhost:5157/api/match/save", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    seed: DATA,
+                    password: this.savePass
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                this.gameId = data.id
+                console.log("Saved ID:", data.id);
+                this.renderKey++;
+            });
+
+            this.popupMode = "showId";
+        }
     }
 }

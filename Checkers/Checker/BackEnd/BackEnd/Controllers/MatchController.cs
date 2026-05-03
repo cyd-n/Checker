@@ -1,7 +1,9 @@
 ﻿using BackEnd.Models;
+using BackEnd.Reqeust;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Numerics;
+using System.Text.RegularExpressions;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,39 +15,33 @@ namespace BackEnd.Controllers
     {
         private readonly MatchContext _context;
 
-        public MatchController(MatchContext _ctx)
-        {
-            _context = _ctx;
-        }
+        public MatchController(MatchContext _ctx) { _context = _ctx; }
 
         // GET api/match/{gameId}
         [HttpGet("{_gameId}")]
-        public async Task<IActionResult> Get(int _gameId)
-        {
-            var match = await _context.matches
-                .FirstOrDefaultAsync(m => m.Id == _gameId);
+        public async Task<IActionResult> Get(int _gameId, string _pass) {
+            var match = await _context.matches.FirstOrDefaultAsync(m => m.Id == _gameId);
 
-            if (match == null)
-                return NotFound(new { message = "Game not found" });
+            if (match == null) { return NotFound(new { message = "Game not found" }); }
 
-            return Ok(new { match.Seed, match.Password});
+            if (_pass != match.Password || _pass == null) { return NotFound(new { message = "PassWord is Invalid" }); }
+
+            return Ok(new { match.Seed});
         }
 
         // POST api/<MatchController>
         [HttpPost("Save")]
-        public async Task<IActionResult> Save(string _field, string _pass) {
-            string gameId = _field;
-
+        public async Task<IActionResult> Save([FromBody] SaveRequest _req) {
             var match = new Matches
             {
-                Seed = gameId,
-                Password = _pass
+                Seed = _req.Seed,
+                Password = _req.Password
             };
 
             _context.matches.Add(match);
             await _context.SaveChangesAsync();
 
-            return Ok(new { id = match.Id, gameId, _pass});
+            return Ok(new { id = match.Id, _req.Seed, _req.Password });
         }
     }
 }
